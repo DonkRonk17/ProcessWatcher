@@ -474,7 +474,7 @@ If you find ProcessWatcher useful:
 
 ---
 
-**Created by Team Brain**  
+**Created by Randell Logan Smith and Team Brain**  
 **Part of the Holy Grail Automation Project**
 
 Take control of your system resources! ⚡

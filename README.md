@@ -1,3 +1,5 @@
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/f81380d1-8513-4b0e-adde-3f99e5afc780" />
+
 # ⚡ ProcessWatcher - Smart Process Monitor & Manager
 
 **Monitor system resources and manage processes like a pro - all from the command line!**
@@ -440,6 +442,9 @@ python processwatcher.py history
 ProcessWatcher respects your privacy and doesn't share any data.
 
 ---
+
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/c495494d-b01c-4daa-9281-6ade452bb71e" />
+
 
 ## 🤝 Contributing
 

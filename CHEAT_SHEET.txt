@@ -1,0 +1,258 @@
+================================================================================
+PROCESSWATCHER CHEAT SHEET
+================================================================================
+
+QUICK START
+-----------
+1. Install dependency: pip install psutil
+2. Check version: python processwatcher.py --help
+3. Basic usage: python processwatcher.py stats
+
+================================================================================
+COMMON COMMANDS
+--------------------------------------------------------------------------------
+
+SYSTEM STATS
+  python processwatcher.py stats
+  
+  Shows instant overview of:
+  - CPU usage %
+  - Memory usage % and GB
+  - Disk usage % and GB
+
+--------------------------------------------------------------------------------
+
+LIST PROCESSES
+  python processwatcher.py list                    # Top 20 by CPU
+  python processwatcher.py list --sort cpu         # Sort by CPU
+  python processwatcher.py list --sort memory      # Sort by memory
+  python processwatcher.py list --sort name        # Sort alphabetically
+  python processwatcher.py list --limit 50         # Show top 50
+  python processwatcher.py list --all              # Include idle processes
+
+--------------------------------------------------------------------------------
+
+FIND PROCESSES
+  python processwatcher.py find chrome             # Find all Chrome processes
+  python processwatcher.py find python             # Find Python processes
+  python processwatcher.py find "my app"           # Find by partial name
+
+  Note: Search is case-insensitive
+
+--------------------------------------------------------------------------------
+
+PROCESS DETAILS
+  python processwatcher.py info 1234               # Details for PID 1234
+  
+  Shows:
+  - Name, PID, Status
+  - CPU and Memory usage
+  - User, Start time
+  - Executable path, Working directory
+  - Command line arguments
+
+--------------------------------------------------------------------------------
+
+KILL PROCESSES
+  python processwatcher.py kill 1234               # Graceful terminate (SIGTERM)
+  python processwatcher.py kill 1234 --force       # Force kill (SIGKILL)
+
+  Note: May require admin/sudo for some processes
+
+--------------------------------------------------------------------------------
+
+REAL-TIME MONITORING
+  python processwatcher.py monitor                 # Default 2-second interval
+  python processwatcher.py monitor --interval 5    # Custom interval (seconds)
+
+  Press Ctrl+C to stop
+  Data automatically logged to ~/.processwatcher/resource_log.txt
+
+--------------------------------------------------------------------------------
+
+RESOURCE HISTORY
+  python processwatcher.py history                 # Last 20 entries
+  python processwatcher.py history --lines 50      # Last 50 entries
+  python processwatcher.py history --lines 100     # Last 100 entries
+
+  Note: Run 'monitor' first to collect data
+
+--------------------------------------------------------------------------------
+
+NETWORK STATISTICS
+  python processwatcher.py network
+
+  Shows:
+  - Total bytes sent/received since boot
+  - Total packets sent/received
+
+================================================================================
+CLI FLAGS & OPTIONS
+--------------------------------------------------------------------------------
+
+Global Options:
+  -h, --help           Show help message
+  
+List Command:
+  --sort {cpu,memory,name}   Sort processes by field (default: cpu)
+  --limit N                   Number of processes to show (default: 20)
+  --all                       Include idle processes
+
+Kill Command:
+  --force              Force kill (SIGKILL instead of SIGTERM)
+
+Monitor Command:
+  --interval N         Update interval in seconds (default: 2)
+
+History Command:
+  --lines N            Number of entries to show (default: 20)
+
+================================================================================
+PYTHON API
+--------------------------------------------------------------------------------
+
+Import:
+  from processwatcher import ProcessWatcher
+
+Basic Usage:
+  watcher = ProcessWatcher()
+  info = watcher.get_system_info()
+  print(f"CPU: {info['cpu']}%")
+
+Available Methods:
+  watcher.get_system_info()       # Returns dict with cpu, memory, disk
+  watcher.display_system_stats()  # Prints formatted stats
+  watcher.list_processes(sort_by='cpu', limit=20, show_all=False)
+  watcher.find_process("name")    # Search by name
+  watcher.get_process_details(pid)  # Get info for specific PID
+  watcher.kill_process(pid, force=False)  # Terminate process
+  watcher.get_network_stats()     # Print network I/O
+  watcher.monitor_realtime(interval=2)  # Live monitoring
+  watcher.show_resource_history(lines=20)  # Show logged history
+  watcher.log_resource(info)      # Log data point
+
+System Info Dictionary Keys:
+  info['cpu']              # CPU percent (0-100)
+  info['memory_percent']   # Memory percent (0-100)
+  info['memory_used_gb']   # Memory used in GB
+  info['memory_total_gb']  # Total memory in GB
+  info['disk_percent']     # Disk percent (0-100)
+  info['disk_used_gb']     # Disk used in GB
+  info['disk_total_gb']    # Total disk in GB
+
+================================================================================
+INTEGRATION WITH TEAM BRAIN TOOLS
+--------------------------------------------------------------------------------
+
+With AgentHealth:
+  from agenthealth import AgentHealth
+  from processwatcher import ProcessWatcher
+  
+  health = AgentHealth()
+  watcher = ProcessWatcher()
+  
+  # Check system before starting session
+  info = watcher.get_system_info()
+  if info['cpu'] > 90:
+      health.log_warning("FORGE", "High CPU before session")
+
+With SynapseLink:
+  from synapselink import quick_send
+  from processwatcher import ProcessWatcher
+  
+  watcher = ProcessWatcher()
+  info = watcher.get_system_info()
+  
+  if info['memory_percent'] > 85:
+      quick_send("LOGAN", "System Alert", 
+                 f"Memory at {info['memory_percent']}%!",
+                 priority="HIGH")
+
+With TokenTracker:
+  from tokentracker import TokenTracker
+  from processwatcher import ProcessWatcher
+  
+  tracker = TokenTracker()
+  watcher = ProcessWatcher()
+  
+  # Monitor resource usage alongside token costs
+  info = watcher.get_system_info()
+  session = tracker.get_current_session()
+  print(f"Resources: CPU {info['cpu']}%, Tokens: {session['tokens']}")
+
+================================================================================
+DATA STORAGE
+--------------------------------------------------------------------------------
+
+Config Directory:
+  ~/.processwatcher/
+
+Resource Log:
+  ~/.processwatcher/resource_log.txt
+  
+Log Format (CSV):
+  timestamp,cpu%,memory%,disk%
+  
+Example:
+  2026-01-28T10:15:32.123456,15.2,62.4,45.3
+
+================================================================================
+TROUBLESHOOTING
+--------------------------------------------------------------------------------
+
+Error: "psutil not installed"
+  Solution: pip install psutil
+
+Error: "Access denied" when killing process
+  Solution: Run as Administrator (Windows) or sudo (Linux/Mac)
+
+Error: "No processes found"
+  Cause: You may not have permission to see all processes
+  Solution: Run with elevated privileges
+
+Error: "No resource history found"
+  Cause: Never ran monitor command
+  Solution: Run 'processwatcher.py monitor' first to collect data
+
+Permission Issues:
+  Windows: Run Command Prompt as Administrator
+  Linux/Mac: Use 'sudo python processwatcher.py ...'
+
+================================================================================
+SHORTCUTS & ALIASES
+--------------------------------------------------------------------------------
+
+Linux/Mac (.bashrc or .zshrc):
+  alias pw='python /path/to/processwatcher.py'
+  alias pwstats='python /path/to/processwatcher.py stats'
+  alias pwlist='python /path/to/processwatcher.py list'
+  alias pwmon='python /path/to/processwatcher.py monitor'
+
+Windows PowerShell (profile.ps1):
+  Function pw { python C:\path\to\processwatcher.py $args }
+  Function pwstats { python C:\path\to\processwatcher.py stats }
+
+================================================================================
+RESOURCES
+--------------------------------------------------------------------------------
+
+Documentation:   AutoProjects/ProcessWatcher/README.md
+Examples:        AutoProjects/ProcessWatcher/EXAMPLES.md
+Integration:     AutoProjects/ProcessWatcher/INTEGRATION_PLAN.md
+GitHub:          https://github.com/DonkRonk17/ProcessWatcher
+Issues:          https://github.com/DonkRonk17/ProcessWatcher/issues
+
+================================================================================
+QUICK DIAGNOSTIC WORKFLOW
+--------------------------------------------------------------------------------
+
+1. Check system stats:      processwatcher.py stats
+2. List top consumers:      processwatcher.py list
+3. Get details on culprit:  processwatcher.py info <PID>
+4. Kill if needed:          processwatcher.py kill <PID>
+5. Monitor after fix:       processwatcher.py monitor
+
+================================================================================
+Part of Team Brain / Beacon HQ Toolkit
+Created by Forge | For Logan Smith / Metaphy LLC
+================================================================================
